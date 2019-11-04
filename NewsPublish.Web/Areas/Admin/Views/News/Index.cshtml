@@ -29,7 +29,7 @@
     <div class="pd-20">
         <div class="text-c">
             新闻类别:
-            <select class="select" id="" name="">
+            <select class="select" id="classifyId" name="classifyId">
                 <option value="0">选择一个新闻类别</option>
                 @if (Model.code == 200)
                 {
@@ -40,7 +40,7 @@
                 }
             </select>
             &nbsp;
-            <input type="text" class="input-text" style="width:250px" placeholder="输入新闻标题" id="" name="">&nbsp;<button type="submit" class="btn btn-success" id="" name=""><i class="icon-search"></i> 搜新闻</button>
+            <input type="text" class="input-text" style="width:250px" placeholder="输入新闻标题" id="keyword" name="keyword">&nbsp;<button type="submit" class="btn btn-success" id="" name=""><i class="icon-search"></i> 搜新闻</button>
 
         </div>
         <div class="cl pd-5 bg-1 bk-gray mt-20">
@@ -52,7 +52,6 @@
         <table class="table table-border table-bordered table-hover table-bg table-sort">
             <thead>
                 <tr class="text-c">
-                    <th width="25"><input type="checkbox" name="" value=""></th>
                     <th width="80">ID</th>
                     <th width="100">类别名称</th>
                     <th width="300">标题</th>
@@ -62,19 +61,7 @@
                     <th width="100">操作</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr class="text-c">
-                    <td><input type="checkbox" value="1" name=""></td>
-                    <td>1</td>
-                    <td>时政要闻</td>
-                    <td>外媒曝光微软内部邮件：可折叠Surface Phone有戏</td>
-                    <td>现在，外媒The Verge居然曝光了微软的内部邮件，其中还泄漏了Andromeda项目的...</td>
-                    <td>2014-6-11 11:11:42</td>
-                    <td>这是一个备注</td>
-                    <td class="f-14 user-manage">
-                        <a title="删除" href="javascript:;" onClick="del(this,'1')" class="ml-5" style="text-decoration:none"><i class="icon-trash"></i></a>
-                    </td>
-                </tr>
+            <tbody id="news_contents">
             </tbody>
         </table>
         <div id="pageNav" class="pageNav"></div>
@@ -89,18 +76,16 @@
     <script type="text/javascript">
         var pageSize = 15;
         var pageIndex = 1;
+        var currentPageCount = 0;
+        var classifyId = 0;
+        var keyword = "";
         window.onload = (function () {
             // optional set
             pageNav.pre = "&lt;上一页";
             pageNav.next = "下一页&gt;";
+            getNews(pageIndex, pageSize, classifyId, keyword);
 
-            // p,当前页码,pn,总页面
-            pageNav.fn = function (p, pn) {
-                $("#pageinfo").text("当前页:" + p + " 总页: " + pn);
-                //alert("当前页:"+p+" 总页: "+pn);
-            };
-            //重写分页状态,跳到第三页,总页33页
-            pageNav.go(pageIndex, 2);
+
         });
         $('.table-sort').dataTable({
             "lengthMenu": false,//显示数量选择
@@ -111,9 +96,41 @@
             "bStateSave": true,//状态保存
             "aoColumnDefs": [
                 //{"bVisible": false, "aTargets": [ 3 ]} //控制列的隐藏显示
-                { "orderable": false, "aTargets": [0, 7] }// 制定列不参与排序
+                { "orderable": false, "aTargets": [0,1,2,3,4,5,6,7] }// 制定列不参与排序
             ]
         });
+
+        function getNews(pageIndex, pageSize, classifyId, keyword) {
+            $.ajax({
+                type: 'get',
+                async: true,
+                url: '/Admin/News/GetNews',
+                data: { pageIndex: pageIndex, pageSize: pageSize, classifyId: classifyId, keyword: keyword },
+                success: function (result) {
+                    currentPageCount = result.data.length;
+                    var totalPage = parseInt(result.total / pageSize + 1);
+                    // p,当前页码,pn,总页面
+                    pageNav.fn = function (p, pn) {
+                        $("#pageinfo").text("当前页:" + pageIndex + " 总页: " + totalPage);
+                        //alert("当前页:"+p+" 总页: "+pn);
+                    };
+                    //重写分页状态,跳到第三页,总页33页
+                    pageNav.go(pageIndex, totalPage);
+                    $("#news_contents").empty();
+                    for (var i = 0; i < result.data.length; i++) {
+                        var trData = result.data[i];
+                        //!!!!所有的字段名称的首字母会被转换成小写。
+                        var tr = '<tr class="text-c"> <td>' + trData.id + '</td><td>'
+                            + trData.classifyName + '</td><td>' + trData.title + '</td><td>'
+                            + trData.contents + '</td><td>' + trData.publishDate + '</td><td>'
+                            + trData.remark + '</td><td class="f-14 user-manage"><a title="删除" href="javascript:;" onClick="del(this,' + trData.id + ')" class="ml-5" style="text-decoration:none"><i class="icon-trash"></i></a></td></tr>';
+                        $("#news_contents").append(tr);
+                    }
+
+                }
+            });
+        }
+
         //删除新闻
         function del(obj, id) {
             layer.confirm('确认要删除吗？', function (index) {

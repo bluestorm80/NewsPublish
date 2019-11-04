@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NewsPublish.Model.Entity;
 using NewsPublish.Model.Request;
 using NewsPublish.Model.Response;
 using NewsPublish.Service;
@@ -28,8 +30,22 @@ namespace NewsPublish.Web.Areas.Admin.Controllers
             var newsClassifys = _newsService.GetNewsClassifyList();
             return View(newsClassifys);
         }
-
-
+        [HttpGet]
+        public JsonResult GetNews(int pageIndex,int pageSize,int classifyId,string keyword)
+        {
+            List<Expression<Func<News, bool>>> wheres = new List<Expression<Func<News, bool>>>();
+            if (classifyId > 0)
+            {
+                wheres.Add(c=>c.NewsClassifyId==classifyId);
+            }
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                wheres.Add(c => c.Title.Contains(keyword));
+            }
+            int total = 0;
+            var news = _newsService.NewsPageQuery(pageSize, pageIndex, out total, wheres);
+            return Json(new { total=total,data=news.data});
+        }
 
         #region 新闻类别
 
