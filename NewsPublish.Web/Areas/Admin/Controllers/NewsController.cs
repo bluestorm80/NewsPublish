@@ -16,7 +16,7 @@ namespace NewsPublish.Web.Areas.Admin.Controllers
     {
         private NewsService _newsService;
         private IHostingEnvironment _host;
-        public NewsController(NewsService newsService,IHostingEnvironment host)
+        public NewsController(NewsService newsService, IHostingEnvironment host)
         {
             this._newsService = newsService;
             this._host = host;
@@ -42,10 +42,26 @@ namespace NewsPublish.Web.Areas.Admin.Controllers
         public JsonResult NewsClassifyAdd(AddNewsClassify newsClassify)
         {
             if (string.IsNullOrEmpty(newsClassify.Name))
-                return Json(new ResponseModel {
-                code=0,result="请输入新闻类别"
+                return Json(new ResponseModel
+                {
+                    code = 0,
+                    result = "请输入新闻类别"
                 });
             return Json(_newsService.AddNewsClassify(newsClassify));
+        }
+
+        public ActionResult NewsClassifyEdit(int id)
+        {
+
+            return View(_newsService.GetOneNewsClassify(id));
+        }
+        [HttpPost]
+        public JsonResult NewsClassifyEdit(EditNewsClassify newsClassify)
+        {
+            if (string.IsNullOrEmpty(newsClassify.Name))
+                return Json(new ResponseModel { code = 0, result = "请输入新闻类别名称" });
+            return Json(_newsService.EditNewsClassify(newsClassify));
+
         }
 
     }
