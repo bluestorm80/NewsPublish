@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -31,12 +32,12 @@ namespace NewsPublish.Web.Areas.Admin.Controllers
             return View(newsClassifys);
         }
         [HttpGet]
-        public JsonResult GetNews(int pageIndex,int pageSize,int classifyId,string keyword)
+        public JsonResult GetNews(int pageIndex, int pageSize, int classifyId, string keyword)
         {
             List<Expression<Func<News, bool>>> wheres = new List<Expression<Func<News, bool>>>();
             if (classifyId > 0)
             {
-                wheres.Add(c=>c.NewsClassifyId==classifyId);
+                wheres.Add(c => c.NewsClassifyId == classifyId);
             }
             if (!string.IsNullOrEmpty(keyword))
             {
@@ -44,8 +45,58 @@ namespace NewsPublish.Web.Areas.Admin.Controllers
             }
             int total = 0;
             var news = _newsService.NewsPageQuery(pageSize, pageIndex, out total, wheres);
-            return Json(new { total=total,data=news.data});
+            return Json(new { total = total, data = news.data });
         }
+        public ActionResult NewsAdd()
+        {
+            var newsClassifys = _newsService.GetNewsClassifyList();
+            return View(newsClassifys);
+        }
+        [HttpPost]
+        public async Task<JsonResult> AddNews(AddNews news, IFormCollection collection)
+        {
+            if (news.NewsClassifyId <= 0 || string.IsNullOrEmpty(news.Title) || string.IsNullOrEmpty(news.Contents))
+                return Json(new ResponseModel
+                {
+                    code = 0,
+                    result = "参数有误"
+                });
+            var files = collection.Files;
+            if (files.Count > 0)
+            {
+                string webRootPath = _host.WebRootPath;
+                string relativeDirPath = "\\NewsPic";
+                string absolutePath = webRootPath + relativeDirPath;
+                string[] fileTypes = new string[] { ".gif", ".jpg", ".png", ".bmp" };
+                string extension = Path.GetExtension(files[0].FileName);
+                if (fileTypes.Contains(extension))
+                {
+                    if (!Directory.Exists(absolutePath))
+                        Directory.CreateDirectory(absolutePath);
+                    string fileName = DateTime.Now.ToString("yyyyMMddHHmmss") + extension;
+                    var filePath = absolutePath + "\\" + fileName;
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await files[0].CopyToAsync(stream);
+                    }
+                    news.Image = "/NewsPic/" + fileName;
+                    return Json(_newsService.AddNews(news));
+                }
+                return Json(new ResponseModel
+                {
+                    code = 0,
+                    result = "图片格式有误"
+                });
+            }
+            return Json(new ResponseModel
+            {
+                code = 0,
+                result = "请上传图片文件"
+            });
+
+        }
+
+
 
         #region 新闻类别
 

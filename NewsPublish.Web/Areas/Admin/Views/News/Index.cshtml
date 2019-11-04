@@ -40,12 +40,12 @@
                 }
             </select>
             &nbsp;
-            <input type="text" class="input-text" style="width:250px" placeholder="输入新闻标题" id="keyword" name="keyword">&nbsp;<button type="submit" class="btn btn-success" id="" name=""><i class="icon-search"></i> 搜新闻</button>
+            <input type="text" class="input-text" style="width:250px" placeholder="输入新闻标题" id="keyword" name="keyword">&nbsp;<button type="button" onclick="search()"class="btn btn-success" id="" name=""><i class="icon-search"></i> 搜新闻</button>
 
         </div>
         <div class="cl pd-5 bg-1 bk-gray mt-20">
             <span class="l">
-                <a href="javascript:;" onClick="user_add('550','700','添加新闻','news-add.html')" class="btn btn-primary radius"><i class="icon-plus"></i> 添加新闻</a>
+                <a href="javascript:;" onClick="user_add('550','700','添加新闻','/admin/news/newsadd')" class="btn btn-primary radius"><i class="icon-plus"></i> 添加新闻</a>
             </span>
 
         </div>
@@ -100,6 +100,13 @@
             ]
         });
 
+        function search() {
+            var classifyId = $("#classifyId").val();
+            var keyword = $("#keyword").val();
+            pageIndex = 1;
+            getNews(pageIndex,pageSize,classifyId,keyword);
+        }
+
         function getNews(pageIndex, pageSize, classifyId, keyword) {
             $.ajax({
                 type: 'get',
@@ -137,6 +144,9 @@
                 $(obj).parents("tr").remove();
                 layer.msg('已删除!', 1);
             });
+        }
+        function reload() {
+            location.replace(location.href);
         }
     </script>
 
