@@ -25,8 +25,13 @@ namespace NewsPublish.Web.Areas.Admin.Controllers
         // GET: News
         public ActionResult Index()
         {
-            return View();
+            var newsClassifys = _newsService.GetNewsClassifyList();
+            return View(newsClassifys);
         }
+
+
+
+        #region 新闻类别
 
         public ActionResult NewsClassify()
         {
@@ -63,6 +68,6 @@ namespace NewsPublish.Web.Areas.Admin.Controllers
             return Json(_newsService.EditNewsClassify(newsClassify));
 
         }
-
+        #endregion
     }
 }

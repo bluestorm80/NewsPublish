@@ -9,14 +9,20 @@ namespace NewsPublish.Service
     /// <summary>
     /// 数据库访问上下文
     /// </summary>
-    public class Db:DbContext
+    public class Db : DbContext
     {
         public Db() { }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlServer(@"Data Source=WIN-CHPVENJM68R\SQLEXPRESS;Initial Catalog=NewsPublish;User ID=sa;Password=123456",
-                b=>b.UseRowNumberForPaging());
+            //get the computer name
+            string machineName = Environment.MachineName;
+            if (machineName == "SHA3135T")
+                optionsBuilder.UseSqlServer(@"Server=(LocalDB)\MSSQLLocalDB; Integrated Security=true;Initial Catalog=Newspublish",
+               b => b.UseRowNumberForPaging());
+            else
+                optionsBuilder.UseSqlServer(@"Data Source=WIN-CHPVENJM68R\SQLEXPRESS;Initial Catalog=NewsPublish;User ID=sa;Password=123456",
+                    b => b.UseRowNumberForPaging());
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

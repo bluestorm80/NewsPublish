@@ -2,7 +2,7 @@
 @{
     Layout = null;
 }
-
+@model NewsPublish.Model.Response.ResponseModel
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -22,36 +22,47 @@
     <!--[if IE 7]>
     <link href="font/font-awesome-ie7.min.css" rel="stylesheet" type="text/css" />
     <![endif]-->
-    <title>添加新闻类别</title>
+    <title>编辑新闻类别</title>
 </head>
 <body>
+
     <div class="pd-20">
         <div class="Huiform">
-            <form method="post">
-                <table class="table table-bg">
-                    <tbody>
-                        <tr>
-                            <th class="text-r">类别名编号：</th>
-                            <td><input type="text" style="width:300px" class="input-text" value="1" placeholder="" id="name" name="name" readonly></td>
-                        </tr>
-                        <tr>
-                            <th class="text-r">类别名称：</th>
-                            <td><input type="text" style="width:300px" class="input-text" value="" placeholder="" id="name" name="name" datatype="*2-120" nullmsg="类别名称不能为空"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-r">排序：</th>
-                            <td><input type="text" style="width:300px" class="input-text" value="0" placeholder="" id="sort" name="sort"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-r">备注：</th>
-                            <td><input type="text" style="width:300px" class="input-text" value="" placeholder="" id="remark" name="remark"></td>
-                        </tr>
-                        <tr>
-                            <th></th>
-                            <td><button class="btn btn-success radius" type="submit"><i class="icon-ok"></i> 确定</button></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <form method="post" id="editForm">
+                @if (Model.code == 200)
+                {
+                    <table class="table table-bg">
+                        <tbody>
+
+
+                            <tr>
+                                <th class="text-r">类别名编号：</th>
+                                <td><input type="text" style="width:300px" class="input-text" value="@Model.data.Id" placeholder="" id="Id" name="Id" readonly></td>
+                            </tr>
+                            <tr>
+                                <th class="text-r">类别名称：</th>
+                                <td><input type="text" style="width:300px" class="input-text" value="@Model.data.Name" placeholder="" id="name" name="name" datatype="*2-120" nullmsg="类别名称不能为空"></td>
+                            </tr>
+                            <tr>
+                                <th class="text-r">排序：</th>
+                                <td><input type="text" style="width:300px" class="input-text" value="@Model.data.Sort" placeholder="" id="sort" name="sort"></td>
+                            </tr>
+                            <tr>
+                                <th class="text-r">备注：</th>
+                                <td><input type="text" style="width:300px" class="input-text" value="@Model.data.Remark" placeholder="" id="remark" name="remark"></td>
+                            </tr>
+                            <tr>
+                                <th></th>
+                                <td><button class="btn btn-success radius" type="button" onclick="edit()"><i class="icon-ok"></i> 确定</button></td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div>Model.Code=@Model.code</div>
+                }
             </form>
         </div>
     </div>
@@ -60,7 +71,22 @@
     <script type="text/javascript" src="/admin/js/H-ui.js"></script>
     <script type="text/javascript" src="/admin/js/H-ui.admin.js"></script>
     <script type="text/javascript">
-$(".Huiform").Validform();
+        $(".Huiform").Validform();
+        function edit() {
+            $.ajax({
+                type: 'post',
+                async: true,
+                url: '/Admin/News/NewsClassifyEdit',
+                data: $("#editForm").serialize(),
+                success: function (data) {
+                    if (data.code == 200) {
+                        parent.reload();
+                    } else {
+                        layer.msg(data.result, 1);
+                    }
+                }
+            });
+        }
     </script>
 
 </body>
