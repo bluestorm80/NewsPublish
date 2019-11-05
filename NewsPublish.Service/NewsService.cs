@@ -250,7 +250,7 @@ namespace NewsPublish.Service
             response.data = new List<NewsModel>();
             foreach (var news in list)
             {
-                response.data.add(new NewsModel
+                response.data.Add(new NewsModel
                 {
                     ID = news.ID,
                     ClassifyName = news.NewsClassify.Name,

@@ -44,6 +44,12 @@ namespace NewsPublish.Web.Controllers
         {
             return Json(_newsService.GetNewsCount(c=>true));
         }
+        [HttpGet]
+        public JsonResult GetHomeNews()
+        {
+            return Json(_newsService.GetNewsList(c=>true,6));
+        }
+
 
         public IActionResult Privacy()
         {
