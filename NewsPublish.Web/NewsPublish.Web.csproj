@@ -22,6 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\js\site.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\NewsPublish.Model\NewsPublish.Model.csproj" />
     <ProjectReference Include="..\NewsPublish.Service\NewsPublish.Service.csproj" />
   </ItemGroup>

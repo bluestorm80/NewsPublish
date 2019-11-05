@@ -96,7 +96,16 @@ namespace NewsPublish.Web.Areas.Admin.Controllers
 
         }
 
-
+        public JsonResult DelNews(int id)
+        {
+            if (id < 0)
+                return Json(new ResponseModel
+                {
+                    code = 0,
+                    result = "新闻不存在"
+                });
+            return Json(_newsService.DelOneNews(id));
+        }
 
         #region 新闻类别
 

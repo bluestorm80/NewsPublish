@@ -5,22 +5,44 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using NewsPublish.Service;
 using NewsPublish.Web.Models;
 
 namespace NewsPublish.Web.Controllers
 {
     public class HomeController : Controller
     {
+        private NewsService _newsService;
+        private BannerService _bannerService;
+        public HomeController(NewsService newsService, BannerService bannerService)
+        {
+            _newsService = newsService;
+            _bannerService = bannerService;
+
+        }
         private readonly ILogger<HomeController> _logger;
 
+        /*
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
         }
-
+        */
         public IActionResult Index()
         {
-            return View();
+            ViewData["Title"] = "首页";
+            return View(_newsService.GetNewsClassifyList());
+        }
+
+        [HttpGet]
+        public JsonResult GetBanner()
+        {
+            return Json(_bannerService.GetBannerList());
+        }
+        [HttpGet]
+        public JsonResult GetTotalNews()
+        {
+            return Json(_newsService.GetNewsCount(c=>true));
         }
 
         public IActionResult Privacy()
